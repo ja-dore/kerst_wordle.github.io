@@ -1,13 +1,17 @@
-import { WORDS } from "./words.js";
+
+//constanten
 
 const NUMBER_OF_GUESSES = 6;
 let guessesRemaining = NUMBER_OF_GUESSES;
 let currentGuess = [];
 let nextLetter = 0;
-let rightGuessString = WORDS[Math.floor(Math.random() * WORDS.length)]
+let solution = ['goed','doel','game','grof','geld','geluk']
+let solutionCounter = 0;
+let rightGuessString = solution[solutionCounter];
 
-console.log(rightGuessString)
 
+
+//deze functie maakt de lettertjs'
 function initBoard() {
     let board = document.getElementById("game-board");
 
@@ -15,7 +19,7 @@ function initBoard() {
         let row = document.createElement("div")
         row.className = "letter-row"
         
-        for (let j = 0; j < 5; j++) {
+        for (let j = 0; j < rightGuessString.length; j++) {
             let box = document.createElement("div")
             box.className = "letter-box"
             row.appendChild(box)
@@ -25,7 +29,29 @@ function initBoard() {
     }
 }
 
-function shadeKeyBoard(letter, color) {
+// even kijken of het woord bestaat
+async function bestaat(word) {
+    const url = `https://woorden.org/woord/${encodeURIComponent(word)}`;
+    const response = await fetch(url);
+    const html = await response.text();
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    const text = doc.body.textContent;
+    const search = "Dit woord heeft geen uitgebreide woordinformatie.";
+
+    if (text.includes(search)) {
+        console.log("return false");
+        return false;
+    } else {
+        console.log("return true");
+        return true;
+    }
+}
+
+// deze functie maakt het toetsenbord.
+/*function shadeKeyBoard(letter, color) {
     for (const elem of document.getElementsByClassName("keyboard-button")) {
         if (elem.textContent === letter) {
             let oldColor = elem.style.backgroundColor
@@ -41,8 +67,9 @@ function shadeKeyBoard(letter, color) {
             break
         }
     }
-}
+}*/
 
+//deze functie verwijderd een letter.
 function deleteLetter () {
     let row = document.getElementsByClassName("letter-row")[6 - guessesRemaining]
     let box = row.children[nextLetter - 1]
@@ -52,7 +79,9 @@ function deleteLetter () {
     nextLetter -= 1
 }
 
-function checkGuess () {
+
+//deze functie kijk je gok na op aantal letters en of het woord klopt. 
+async function checkGuess () {
     let row = document.getElementsByClassName("letter-row")[6 - guessesRemaining]
     let guessString = ''
     let rightGuess = Array.from(rightGuessString)
@@ -61,18 +90,20 @@ function checkGuess () {
         guessString += val
     }
 
-    if (guessString.length != 5) {
-        toastr.error("Not enough letters!")
+    if (guessString.length != rightGuessString.length) {
+        alert("te weinig letters");
         return
     }
 
-    if (!WORDS.includes(guessString)) {
-        toastr.error("Word not in list!")
+   // if (!WORDS.includes(guessString)) {
+    if (!(await bestaat(guessString))) {
+        console.log("hier ben je geraakt");
+        alert("dit woord bestaat niet");
         return
     }
 
-    
-    for (let i = 0; i < 5; i++) {
+    //dit deel kijkt na of u woord bestaat. 
+    for (let i = 0; i < rightGuessString.length; i++) {
         let letterColor = ''
         let box = row.children[i]
         let letter = currentGuess[i]
@@ -80,17 +111,17 @@ function checkGuess () {
         let letterPosition = rightGuess.indexOf(currentGuess[i])
         // is letter in the correct guess
         if (letterPosition === -1) {
-            letterColor = 'grey'
+            letterColor = '#979898ff'
         } else {
             // now, letter is definitely in word
             // if letter index and right guess index are the same
             // letter is in the right position 
             if (currentGuess[i] === rightGuess[i]) {
                 // shade green 
-                letterColor = 'green'
+                letterColor = '#60b758ff'
             } else {
                 // shade box yellow
-                letterColor = 'yellow'
+                letterColor = '#ffdd45ff'
             }
 
             rightGuess[letterPosition] = "#"
@@ -102,25 +133,48 @@ function checkGuess () {
             animateCSS(box, 'flipInX')
             //shade box
             box.style.backgroundColor = letterColor
-            shadeKeyBoard(letter, letterColor)
+            //shadeKeyBoard(letter, letterColor)
         }, delay)
     }
 
     if (guessString === rightGuessString) {
-        toastr.success("You guessed right! Game over!")
-        guessesRemaining = 0
-        return
+        showPopup(`Je hebt het goed geraden! <br><br> Open het pakje: <b>${rightGuessString.toUpperCase()}</b>!`);
+        let popups = document.querySelectorAll("div.letter-row"); // select all divs with class "popup"
+        popups.forEach(popup => popup.remove()); //removes every row
+        guessesRemaining = NUMBER_OF_GUESSES; 
+        solutionCounter += 1;
+        currentGuess = [];
+        nextLetter = 0;
+        rightGuessString = solution[solutionCounter];
+        initBoard()
     } else {
         guessesRemaining -= 1;
         currentGuess = [];
         nextLetter = 0;
 
         if (guessesRemaining === 0) {
-            toastr.error("You've run out of guesses! Game over!")
-            toastr.info(`The right word was: "${rightGuessString}"`)
+          showPopup(`Helaas! <br><br> Geen pakjes meer voor jou! <br><br> Het woord was: ${rightGuessString.toUpperCase()}<!`);  
         }
     }
 }
+
+
+
+
+// dit is voor de popup boodschappen
+function showPopup(boodschap) {
+    // Create popup container
+    document.getElementById("popup").classList.add("open-popup");
+    document.getElementById("popup-text").innerHTML = boodschap
+    
+}
+
+function closePopup() {
+    document.getElementById("popup").classList.remove("open-popup");
+  }
+
+document.querySelector("#popup .button").addEventListener("click", closePopup);
+
 
 function insertLetter (pressedKey) {
     if (nextLetter === 5) {
