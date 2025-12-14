@@ -9,6 +9,8 @@ let solution = ['goed','doel','game','grof','geld','geluk']
 let solutionCounter = 0;
 let rightGuessString = solution[solutionCounter];
 
+console.log(rightGuessString);
+
 
 
 //deze functie maakt de lettertjs'
@@ -50,25 +52,6 @@ async function bestaat(word) {
     }
 }
 
-// deze functie maakt het toetsenbord.
-/*function shadeKeyBoard(letter, color) {
-    for (const elem of document.getElementsByClassName("keyboard-button")) {
-        if (elem.textContent === letter) {
-            let oldColor = elem.style.backgroundColor
-            if (oldColor === 'green') {
-                return
-            } 
-
-            if (oldColor === 'yellow' && color !== 'green') {
-                return
-            }
-
-            elem.style.backgroundColor = color
-            break
-        }
-    }
-}*/
-
 //deze functie verwijderd een letter.
 function deleteLetter () {
     let row = document.getElementsByClassName("letter-row")[6 - guessesRemaining]
@@ -85,7 +68,11 @@ async function checkGuess () {
     let row = document.getElementsByClassName("letter-row")[6 - guessesRemaining]
     let guessString = ''
     let rightGuess = Array.from(rightGuessString)
-
+    let green = '#60b758ff'
+    let yellow = '#ffdd45ff'
+    let grey = '#959491ff'
+    let letterColor =  Array(rightGuessString.length).fill(grey);
+   
     for (const val of currentGuess) {
         guessString += val
     }
@@ -95,47 +82,45 @@ async function checkGuess () {
         return
     }
 
-   // if (!WORDS.includes(guessString)) {
+   // dit deel kijkt na of het woord bestaat
     if (!(await bestaat(guessString))) {
-        console.log("hier ben je geraakt");
         alert("dit woord bestaat niet");
         return
     }
 
-    //dit deel kijkt na of u woord bestaat. 
+ 
     for (let i = 0; i < rightGuessString.length; i++) {
-        let letterColor = ''
-        let box = row.children[i]
-        let letter = currentGuess[i]
-        
-        let letterPosition = rightGuess.indexOf(currentGuess[i])
-        // is letter in the correct guess
-        if (letterPosition === -1) {
-            letterColor = '#979898ff'
-        } else {
-            // now, letter is definitely in word
-            // if letter index and right guess index are the same
-            // letter is in the right position 
-            if (currentGuess[i] === rightGuess[i]) {
-                // shade green 
-                letterColor = '#60b758ff'
-            } else {
-                // shade box yellow
-                letterColor = '#ffdd45ff'
-            }
-
-            rightGuess[letterPosition] = "#"
+        // is letter in the correct guess color green
+        if (currentGuess[i] === rightGuess[i]) {
+            letterColor[i] = green
+            rightGuess[i] = ""
         }
-
+    }
+    
+    for (let i = 0; i < rightGuessString.length; i++) {
+    if (letterColor[i] === grey ) {
+        const index = rightGuess.indexOf(currentGuess[i]);
+        if (index !== -1) {
+            letterColor[i] = yellow;
+            currentGuess[index] = null;
+        }
+        }
+    }
+    
+    for (let i = 0; i < rightGuessString.length; i++) {
+        let box = row.children[i]
         let delay = 250 * i
         setTimeout(()=> {
             //flip box
             animateCSS(box, 'flipInX')
             //shade box
-            box.style.backgroundColor = letterColor
+            box.style.backgroundColor = letterColor[i]
             //shadeKeyBoard(letter, letterColor)
+            console.log(guessesRemaining)
         }, delay)
     }
+
+  
 
     if (guessString === rightGuessString) {
         showPopup(`Je hebt het goed geraden! <br><br> Open het pakje: <b>${rightGuessString.toUpperCase()}</b>!`);
@@ -159,8 +144,6 @@ async function checkGuess () {
 }
 
 
-
-
 // dit is voor de popup boodschappen
 function showPopup(boodschap) {
     // Create popup container
@@ -177,7 +160,7 @@ document.querySelector("#popup .button").addEventListener("click", closePopup);
 
 
 function insertLetter (pressedKey) {
-    if (nextLetter === 5) {
+    if (nextLetter === rightGuessString.length) {
         return
     }
     pressedKey = pressedKey.toLowerCase()
