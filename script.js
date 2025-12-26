@@ -5,7 +5,7 @@ const NUMBER_OF_GUESSES = 6;
 let guessesRemaining = NUMBER_OF_GUESSES;
 let currentGuess = [];
 let nextLetter = 0;
-let solution = ['goed','doel','game','grof','geld','geluk']
+let solution = ['gelijk','game','goed','doel','geld','geluk']
 let solutionCounter = 0;
 let rightGuessString = solution[solutionCounter];
 
@@ -120,7 +120,6 @@ async function checkGuess () {
         }, delay)
     }
 
-  
 
     if (guessString === rightGuessString) {
         showPopup(`Je hebt het goed geraden! <br><br> Open het pakje: <b>${rightGuessString.toUpperCase()}</b>!`);
@@ -138,7 +137,13 @@ async function checkGuess () {
         nextLetter = 0;
 
         if (guessesRemaining === 0) {
-          showPopup(`Helaas! <br><br> Geen pakjes meer voor jou! <br><br> Het woord was: ${rightGuessString.toUpperCase()}<!`);  
+          showPopup(`Helaas! <br><br> Geen pakjes meer meer <br><br> Het woord was: ${rightGuessString.toUpperCase()}<!`);  
+          guessesRemaining = NUMBER_OF_GUESSES; 
+            solutionCounter += 1;
+            currentGuess = [];
+            nextLetter = 0;
+            rightGuessString = solution[solutionCounter];
+            initBoard()
         }
     }
 }
