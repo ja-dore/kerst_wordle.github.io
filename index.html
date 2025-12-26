@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" href="images/6G.jpg">
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,7 +14,9 @@
   />
 </head>
 <body>
-    <h1> Wordle Clone </h1>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<script src="script.js" type="module"></script>
+    <h1> GROLIJK GERST GEEST </h1>
     
     <div id="game-board">
 
@@ -55,12 +58,11 @@
             <button class="keyboard-button">Enter</button>
         </div>
     </div>
-
-<script
-src="https://code.jquery.com/jquery-3.6.0.min.js"
-integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
-crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-<script src="script.js" type="module"></script>
+ <div class='popup' id='popup'>
+        <img src='images/6G.jpg'>
+        <h2>Procitiat</h2>
+        <p id="popup-text">Je mag een pakje openmaken</p>
+        <button class='button' type="button">OK!</button>
+ </div>
 </body>
 </html>
